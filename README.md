@@ -4,7 +4,7 @@ The **Device Repurposing Assistant** is an AI-powered SaaS platform that helps r
 
 Built using modern Next.js 16 architecture, this highly-responsive frontend seamlessly interfaces with a standalone FastAPI vision-and-LLM microservice.
 
-**🔗 Live Demo:** [https://device-repurposing-assistant.vercel.app](https://device-repurposing-assistant.vercel.app)
+**🔗 Live Demo:** [Launch Web App ➔](https://device-repurposing-assistant.vercel.app)
 ---
 
 ## 🚀 Key Features
@@ -30,10 +30,10 @@ Built using modern Next.js 16 architecture, this highly-responsive frontend seam
 To get the application running on your local machine for development:
 
 1. **Ensure you have Node.js installed.**
-2. **Clone the repository:**
+3. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/organicLemon1/device-repurposing-assistant.git
+   cd device-repurposing-assistant
    ```
 3. **Install the dependencies:**
    ```bash
