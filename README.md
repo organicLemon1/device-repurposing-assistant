@@ -4,6 +4,7 @@ The **Device Repurposing Assistant** is an AI-powered SaaS platform that helps r
 
 Built using modern Next.js 16 architecture, this highly-responsive frontend seamlessly interfaces with a standalone FastAPI vision-and-LLM microservice.
 
+**🔗 Live Demo:** [https://device-repurposing-assistant.vercel.app](https://device-repurposing-assistant.vercel.app)
 ---
 
 ## 🚀 Key Features
