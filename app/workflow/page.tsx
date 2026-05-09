@@ -131,7 +131,7 @@ function WorkflowContent() {
 
   // ── Visuals (left panel) ────────────────────────────────────────────────────
   const [mermaidChart, setMermaidChart] = useState<string>('');
-  const [videoUrl, setVideoUrl] = useState<string>(DEFAULT_VIDEO_URL);
+  const [videoUrl, setVideoUrl] = useState<string>('');
   const [isDiagramExpanded, setIsDiagramExpanded] = useState(false);
   const [isLoadingVisuals, setIsLoadingVisuals] = useState(true);
 
@@ -224,9 +224,8 @@ function WorkflowContent() {
       if (data.mermaid_chart) {
         setMermaidChart(data.mermaid_chart);
       }
-      if (data.video_url) {
-        setVideoUrl(data.video_url);
-      }
+      // Use backend URL if provided, otherwise fallback to default
+      setVideoUrl(data.video_url || DEFAULT_VIDEO_URL);
       setIsLoadingVisuals(false);
 
       // Drop the AI overview message
@@ -479,10 +478,17 @@ function WorkflowContent() {
               </div>
 
               {/* Retro TV — dynamic YouTube URL from backend */}
-              <div className="bg-white/60 dark:bg-[#0f111a]/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-[2rem] shadow-2xl p-5 sm:px-6 sm:py-4">
+              <div className="bg-white/60 dark:bg-[#0f111a]/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-[2rem] shadow-2xl p-5 sm:px-6 sm:pt-4 sm:pb-4">
                 <SectionHeader icon={<Tv className="w-5 h-5" />} title="Tutorial Video" subtitle="Reference video for this project" />
                 <div className="mt-4">
-                  <RetroTV youtubeUrl={videoUrl || DEFAULT_VIDEO_URL} />
+                  {isLoadingVisuals ? (
+                    <div className="aspect-video bg-slate-100/50 dark:bg-white/5 rounded-2xl flex flex-col items-center justify-center gap-3 border border-dashed border-slate-300 dark:border-white/10">
+                      <div className="w-8 h-8 border-3 border-slate-200 dark:border-white/10 border-t-indigo-500 rounded-full animate-spin" />
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Finding tutorial video...</p>
+                    </div>
+                  ) : (
+                    <RetroTV youtubeUrl={videoUrl || DEFAULT_VIDEO_URL} />
+                  )}
                 </div>
               </div>
             </div>
