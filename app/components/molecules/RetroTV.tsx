@@ -26,13 +26,43 @@ export const RetroTV: React.FC<RetroTVProps> = ({ youtubeUrl, className = '' }) 
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
+    <div className={`flex flex-col items-center pt-8 ${className}`}>
+      {/* Antenna - Moved to top for better layout alignment */}
+      <div className="relative w-full flex justify-center h-0">
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '0',
+            left: 'calc(50% - 25px)',
+            width: '2px',
+            height: '40px',
+            background: 'linear-gradient(to top, #555, #333)',
+            transformOrigin: 'bottom center',
+            transform: 'rotate(-20deg)',
+            borderRadius: '1px',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '0',
+            left: 'calc(50% + 23px)',
+            width: '2px',
+            height: '40px',
+            background: 'linear-gradient(to top, #555, #333)',
+            transformOrigin: 'bottom center',
+            transform: 'rotate(20deg)',
+            borderRadius: '1px',
+          }}
+        />
+      </div>
+
       {/* TV Outer Shell */}
       <div className="relative w-full"
         style={{
           background: 'linear-gradient(145deg, #3a3a3a, #1a1a1a)',
           borderRadius: '24px 24px 32px 32px',
-          padding: '16px 16px 0px 16px',
+          padding: '16px 16px 12px 16px', // Added bottom padding (12px)
           boxShadow: '0 8px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 3px #111',
           border: '3px solid #555',
         }}
@@ -88,7 +118,7 @@ export const RetroTV: React.FC<RetroTVProps> = ({ youtubeUrl, className = '' }) 
           className="flex items-center justify-between px-4 py-3 mt-0"
           style={{
             background: 'linear-gradient(to bottom, #2a2a2a, #1a1a1a)',
-            borderRadius: '0 0 28px 28px',
+            borderRadius: '10px 10px 24px 24px', // More rounded bottom
           }}
         >
           {/* Left: Knobs */}
@@ -133,36 +163,6 @@ export const RetroTV: React.FC<RetroTVProps> = ({ youtubeUrl, className = '' }) 
             />
           </div>
         </div>
-      </div>
-
-      {/* Antenna */}
-      <div className="relative w-full flex justify-center" style={{ height: '0px', marginTop: '-16px' }}>
-        <div
-          style={{
-            position: 'absolute',
-            top: '-48px',
-            left: 'calc(50% - 30px)',
-            width: '2px',
-            height: '50px',
-            background: 'linear-gradient(to top, #555, #333)',
-            transformOrigin: 'bottom center',
-            transform: 'rotate(-20deg)',
-            borderRadius: '1px',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: '-48px',
-            left: 'calc(50% + 28px)',
-            width: '2px',
-            height: '50px',
-            background: 'linear-gradient(to top, #555, #333)',
-            transformOrigin: 'bottom center',
-            transform: 'rotate(20deg)',
-            borderRadius: '1px',
-          }}
-        />
       </div>
     </div>
   );
