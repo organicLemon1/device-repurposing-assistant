@@ -15,7 +15,7 @@ import { SectionHeader } from '../components/molecules/SectionHeader';
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const API_BASE = 'https://device-rag-backend.onrender.com/api';
-const HARDCODED_YOUTUBE_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
+const DEFAULT_VIDEO_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 // Rotating messages shown while /run-project is loading (it takes 20-40s)
 const PLANNING_MESSAGES = [
@@ -131,6 +131,7 @@ function WorkflowContent() {
 
   // ── Visuals (left panel) ────────────────────────────────────────────────────
   const [mermaidChart, setMermaidChart] = useState<string>('');
+  const [videoUrl, setVideoUrl] = useState<string>(DEFAULT_VIDEO_URL);
   const [isDiagramExpanded, setIsDiagramExpanded] = useState(false);
   const [isLoadingVisuals, setIsLoadingVisuals] = useState(true);
 
@@ -219,9 +220,12 @@ function WorkflowContent() {
       setProjectId(data.project_id);
       setTotalSteps(data.total_steps);
 
-      // Update left panel diagram
+      // Update visuals
       if (data.mermaid_chart) {
         setMermaidChart(data.mermaid_chart);
+      }
+      if (data.video_url) {
+        setVideoUrl(data.video_url);
       }
       setIsLoadingVisuals(false);
 
@@ -269,6 +273,10 @@ function WorkflowContent() {
       const data: NextStepResponse = await response.json();
 
       setCurrentStepNumber(data.step_number);
+
+      if (data.video_url) {
+        setVideoUrl(data.video_url);
+      }
 
       if (data.status === 'complete') {
         pushAIBubble(`🎉 **Project Complete!**\n\nYou've successfully finished all steps! Your device has been transformed. Amazing work! 👏\n\nWant to try another project? Head back to the Ideas page.`);
@@ -470,11 +478,11 @@ function WorkflowContent() {
                 )}
               </div>
 
-              {/* Retro TV — hardcoded YouTube URL */}
-              <div className="bg-white/60 dark:bg-[#0f111a]/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-[2rem] shadow-2xl p-5 sm:p-6">
+              {/* Retro TV — dynamic YouTube URL from backend */}
+              <div className="bg-white/60 dark:bg-[#0f111a]/80 backdrop-blur-2xl border border-white/40 dark:border-white/10 rounded-[2rem] shadow-2xl p-5 sm:px-6 sm:py-4">
                 <SectionHeader icon={<Tv className="w-5 h-5" />} title="Tutorial Video" subtitle="Reference video for this project" />
                 <div className="mt-4">
-                  <RetroTV youtubeUrl={HARDCODED_YOUTUBE_URL} />
+                  <RetroTV youtubeUrl={videoUrl || DEFAULT_VIDEO_URL} />
                 </div>
               </div>
             </div>
