@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/atoms/Button";
+import WorkflowModal from "../components/organisms/WorkflowModal";
 
 interface IdeaProject {
   title: string;
@@ -12,12 +13,41 @@ interface IdeaProject {
 
 export default function IdeasPage() {
   const router = useRouter();
-  
+
   const [deviceDetails, setDeviceDetails] = useState<any>(null);
   const [projects, setProjects] = useState<IdeaProject[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const hasFetched = useRef(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGraph, setSelectedGraph] = useState("");
+  const [selectedProjectTitle, setSelectedProjectTitle] = useState("");
+
+  const handleOpenWalkthrough = async (project: IdeaProject) => {
+    try {
+      setSelectedProjectTitle(project.title);
+      setSelectedGraph("flowchart LR\n    A[Generating diagram... Please wait...]");
+      setIsModalOpen(true);
+      
+      const response = await fetch('https://device-rag-backend.onrender.com/api/test-visuals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project_title: project.title,
+          steps: project.steps
+        })
+      });
+      
+      if (!response.ok) throw new Error("Failed to generate visual flowchart");
+      const result = await response.json();
+      setSelectedGraph(result.mermaid_chart);
+      
+    } catch(err: any) {
+      console.error(err);
+      setSelectedGraph("flowchart LR\n    A[Error loading flowchart: " + err.message + "]");
+    }
+  };
 
   useEffect(() => {
     const stored = sessionStorage.getItem("deviceDetails");
@@ -27,7 +57,7 @@ export default function IdeasPage() {
     }
     const data = JSON.parse(stored);
     setDeviceDetails(data);
-    
+
     const fetchIdeas = async () => {
       try {
         const response = await fetch('https://device-rag-backend.onrender.com/api/generate-ideas', {
@@ -37,9 +67,9 @@ export default function IdeasPage() {
             device_id: data.device_id
           })
         });
-        
+
         if (!response.ok) throw new Error("Failed to generate ideas");
-        
+
         const result = await response.json();
         setProjects(result.projects);
       } catch (err: any) {
@@ -48,7 +78,7 @@ export default function IdeasPage() {
         setIsLoading(false);
       }
     };
-    
+
     if (!hasFetched.current) {
       hasFetched.current = true;
       fetchIdeas();
@@ -83,21 +113,21 @@ export default function IdeasPage() {
 
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-32">
-             <div className="flex gap-2 mb-3">
-                <div className="w-4 h-4 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-4 h-4 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-4 h-4 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
-             </div>
-             <p className="text-slate-800 dark:text-slate-300 font-bold animate-pulse text-xl">LLM is brainstorming projects...</p>
-             <p className="text-slate-500 font-medium text-sm mt-3">Analyzing hardware capabilities for best use cases</p>
+            <div className="flex gap-2 mb-3">
+              <div className="w-4 h-4 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+              <div className="w-4 h-4 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+              <div className="w-4 h-4 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            </div>
+            <p className="text-slate-800 dark:text-slate-300 font-bold animate-pulse text-xl">LLM is brainstorming projects...</p>
+            <p className="text-slate-500 font-medium text-sm mt-3">Analyzing hardware capabilities for best use cases</p>
           </div>
         ) : error ? (
-           <div className="bg-rose-50 dark:bg-red-900/20 border border-rose-200 dark:border-red-500/50 rounded-2xl p-5 text-rose-600 dark:text-red-400 max-w-2xl mx-auto text-center shadow-sm">
-             <p className="font-semibold text-lg">{error}</p>
-             <div className="mt-6">
-               <Button variant="outline" onClick={() => window.location.reload()}>Retry Extraction</Button>
-             </div>
-           </div>
+          <div className="bg-rose-50 dark:bg-red-900/20 border border-rose-200 dark:border-red-500/50 rounded-2xl p-5 text-rose-600 dark:text-red-400 max-w-2xl mx-auto text-center shadow-sm">
+            <p className="font-semibold text-lg">{error}</p>
+            <div className="mt-6">
+              <Button variant="outline" onClick={() => window.location.reload()}>Retry Extraction</Button>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {projects.map((project, idx) => (
@@ -108,7 +138,7 @@ export default function IdeasPage() {
                     {project.difficulty}
                   </span>
                 </div>
-                
+
                 <div className="mt-2 flex-grow">
                   <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5 border-b border-slate-100 dark:border-slate-700/50 pb-3">Execution Steps</h4>
                   <ul className="space-y-5">
@@ -122,9 +152,9 @@ export default function IdeasPage() {
                     ))}
                   </ul>
                 </div>
-                
+
                 <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                  <Button variant="secondary" className="w-full text-sm font-bold py-3">
+                  <Button variant="secondary" className="w-full text-sm font-bold py-3" onClick={() => handleOpenWalkthrough(project)}>
                     View Full Guide ➔
                   </Button>
                 </div>
@@ -132,7 +162,7 @@ export default function IdeasPage() {
             ))}
           </div>
         )}
-        
+
         {!isLoading && !error && (
           <div className="mt-20 text-center">
             <Button variant="outline" className="px-10 py-3 font-semibold shadow-sm" onClick={() => {
@@ -141,6 +171,13 @@ export default function IdeasPage() {
             }}>Start Over with New Device</Button>
           </div>
         )}
+
+        <WorkflowModal 
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          projectTitle={selectedProjectTitle}
+          mermaidChartString={selectedGraph}
+        />
 
       </div>
     </main>

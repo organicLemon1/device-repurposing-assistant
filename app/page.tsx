@@ -89,7 +89,7 @@ export default function Home() {
               subtitle="Help the AI identify your specific device model."
             />
             <div className="mt-2 text-slate-700 dark:text-slate-300">
-               <FileUploadArea onFileChange={setFile} />
+              <FileUploadArea onFileChange={setFile} />
             </div>
           </section>
 
@@ -110,19 +110,19 @@ export default function Home() {
               </FormField>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 <FormField id="condition" label="Condition">
-                   <Select
-                     id="condition"
-                     value={condition}
-                     onChange={(e) => setCondition(e.target.value)}
-                     options={[
-                       { label: "Working", value: "working" },
-                       { label: "Partially Working", value: "partially-working" },
-                       { label: "Not Working", value: "not-working" },
-                       { label: "Unknown", value: "unknown" }
-                     ]}
-                   />
-                 </FormField>
+                <FormField id="condition" label="Condition">
+                  <Select
+                    id="condition"
+                    value={condition}
+                    onChange={(e) => setCondition(e.target.value)}
+                    options={[
+                      { label: "Working", value: "working" },
+                      { label: "Partially Working", value: "partially-working" },
+                      { label: "Not Working", value: "not-working" },
+                      { label: "Unknown", value: "unknown" }
+                    ]}
+                  />
+                </FormField>
               </div>
 
               <FormField id="additional-info" label="Additional Context (Optional)">

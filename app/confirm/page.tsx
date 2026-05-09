@@ -17,7 +17,7 @@ interface DeviceData {
 
 export default function ConfirmPage() {
   const router = useRouter();
-  
+
   const [deviceData, setDeviceData] = useState<DeviceData | null>(null);
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -49,19 +49,19 @@ export default function ConfirmPage() {
           brand: brand
         })
       });
-      
+
       if (!response.ok) throw new Error("Failed to confirm device details");
       const confirmData = await response.json();
-      
+
       const updatedData = {
         ...deviceData,
         device_name: confirmData.device_name
       };
       sessionStorage.setItem("deviceDetails", JSON.stringify(updatedData));
-      
+
       router.push('/specs');
-      
-    } catch(err: any) {
+
+    } catch (err: any) {
       alert(err.message || "An error occurred");
       setIsSubmitting(false);
     }
@@ -70,7 +70,7 @@ export default function ConfirmPage() {
   return (
     <main className="w-full h-full p-3 sm:p-4 lg:p-6 font-sans">
       <div className="max-w-5xl mx-auto">
-        
+
         <div className="mb-5 lg:mb-6">
           <div className="flex items-center gap-3 mb-3">
             <span className="text-3xl sm:text-4xl">✅</span>
@@ -84,15 +84,15 @@ export default function ConfirmPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          
+
           {/* Left Column: Image Display */}
           <section className="flex flex-col">
             <SectionHeader icon="🖼️" title="Uploaded Image" />
             <div className="flex-1 min-h-[220px] border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-[#16181e] shadow-xl shadow-slate-200/40 dark:shadow-none overflow-hidden flex items-center justify-center p-4">
               {deviceData.imageBase64 ? (
-                <img 
-                  src={deviceData.imageBase64} 
-                  alt="Uploaded Device" 
+                <img
+                  src={deviceData.imageBase64}
+                  alt="Uploaded Device"
                   className="max-h-full max-w-full object-contain rounded-lg"
                 />
               ) : (
@@ -104,27 +104,27 @@ export default function ConfirmPage() {
           {/* Right Column: Information & Corrections */}
           <section className="flex flex-col">
             <SectionHeader icon="🔍" title="Detected Information" />
-            
+
             <div className="flex flex-col gap-6 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-[#16181e] shadow-xl shadow-slate-200/40 dark:shadow-none p-4 sm:p-5">
-              
+
               <div className="flex justify-between items-center pb-6 border-b border-slate-100 dark:border-slate-800">
-                 <div>
-                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Confidence</p>
-                   <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 relative">
-                     {Math.round(deviceData.confidence * 100)}%
-                   </p>
-                 </div>
-                 <div className="text-right">
-                   <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Device ID</p>
-                   <p className="font-mono text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-md">
-                     {deviceData.device_id.slice(0, 12)}
-                   </p>
-                 </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Confidence</p>
+                  <p className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 relative">
+                    {Math.round(deviceData.confidence * 100)}%
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Device ID</p>
+                  <p className="font-mono text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-md">
+                    {deviceData.device_id.slice(0, 12)}
+                  </p>
+                </div>
               </div>
 
               <div className="flex flex-col gap-4 mt-2">
                 <FormField id="brand-correction" label="Correction: Brand">
-                  <Input 
+                  <Input
                     id="brand-correction"
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
@@ -132,7 +132,7 @@ export default function ConfirmPage() {
                 </FormField>
 
                 <FormField id="model-correction" label="Correction: Model">
-                  <Input 
+                  <Input
                     id="model-correction"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
@@ -147,17 +147,17 @@ export default function ConfirmPage() {
               <Button type="button" variant="outline" onClick={() => router.push('/')} className="px-8 py-3 w-full sm:w-auto">
                 Back to Upload
               </Button>
-              <Button 
-                type="button" 
+              <Button
+                type="button"
                 variant="primary"
-                onClick={handleConfirm} 
+                onClick={handleConfirm}
                 disabled={isSubmitting}
                 className="px-8 py-3 font-bold shadow-lg shadow-indigo-900/10 dark:shadow-indigo-900/20 w-full sm:w-auto"
               >
                 {isSubmitting ? 'Finalizing...' : 'Finalize Context'}
               </Button>
             </div>
-            
+
           </section>
 
         </div>
