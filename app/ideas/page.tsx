@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../components/atoms/Button";
 import { Lightbulb } from "lucide-react";
-import WorkflowModal from "../components/organisms/WorkflowModal";
 import { FloatingBackgroundIcons } from "../components/organisms/FloatingBackgroundIcons";
 
 interface IdeaProject {
@@ -22,33 +21,12 @@ export default function IdeasPage() {
   const [error, setError] = useState<string | null>(null);
   const hasFetched = useRef(false);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedGraph, setSelectedGraph] = useState("");
-  const [selectedProjectTitle, setSelectedProjectTitle] = useState("");
 
-  const handleOpenWalkthrough = async (project: IdeaProject) => {
-    try {
-      setSelectedProjectTitle(project.title);
-      setSelectedGraph("flowchart LR\n    A[Generating diagram... Please wait...]");
-      setIsModalOpen(true);
-      
-      const response = await fetch('https://device-rag-backend.onrender.com/api/test-visuals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          project_title: project.title,
-          steps: project.steps
-        })
-      });
-      
-      if (!response.ok) throw new Error("Failed to generate visual flowchart");
-      const result = await response.json();
-      setSelectedGraph(result.mermaid_chart);
-      
-    } catch(err: any) {
-      console.error(err);
-      setSelectedGraph("flowchart LR\n    A[Error loading flowchart: " + err.message + "]");
-    }
+  // Navigate to the dedicated /workflow page with project data passed via sessionStorage
+  const handleOpenWalkthrough = (project: IdeaProject) => {
+    const key = encodeURIComponent(project.title.replace(/\s+/g, '-').toLowerCase());
+    sessionStorage.setItem(`project_${key}`, JSON.stringify(project));
+    router.push(`/workflow?project=${key}`);
   };
 
   useEffect(() => {
@@ -65,13 +43,9 @@ export default function IdeasPage() {
         const response = await fetch('https://device-rag-backend.onrender.com/api/generate-ideas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            device_id: data.device_id
-          })
+          body: JSON.stringify({ device_id: data.device_id })
         });
-
         if (!response.ok) throw new Error("Failed to generate ideas");
-
         const result = await response.json();
         setProjects(result.projects);
       } catch (err: any) {
@@ -191,13 +165,6 @@ export default function IdeasPage() {
             }}>Start Over with New Device</Button>
           </div>
         )}
-
-        <WorkflowModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          projectTitle={selectedProjectTitle}
-          mermaidChartString={selectedGraph}
-        />
 
       </div>
     </main>
