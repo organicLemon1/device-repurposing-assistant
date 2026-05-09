@@ -1,22 +1,44 @@
 'use client';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useTheme } from "next-themes";
-import { Sun, Lamp, Lightbulb, ArrowLeft } from "lucide-react";
+import { Lamp, Lightbulb, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../atoms/Button";
 
+import { UserAvatar } from "../atoms/UserAvatar";
+import { createClient } from "@/lib/supabase/client";
+import { User } from "@supabase/supabase-js";
+
 export function Navbar() {
   const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const isWorkflowPage = pathname === '/workflow';
+  const supabase = useMemo(() => createClient(), []);
 
-  // Avoid hydration mismatch by only rendering theme toggle after mount
   useEffect(() => {
     setMounted(true);
-  }, []);
+    
+    // Initial fetch
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
+    // Listen for changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+      if (event === 'SIGNED_OUT') {
+        router.refresh();
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase, router]);
 
   const renderThemeToggle = () => {
     if (!mounted) return <div className="w-10 h-10"></div>;
@@ -54,16 +76,24 @@ export function Navbar() {
               </button>
             )}
             <Link href="/" className="flex items-center group">
-              <span className="font-extrabold text-xl tracking-tight text-slate-800 dark:text-white">
+              <span className="font-extrabold text-2xl tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-400">
                 Device Assistant
               </span>
             </Link>
           </div>
 
           <div className="flex items-center space-x-4">
-            <Button variant="primary" className="px-5 py-2 text-sm font-bold rounded-full shadow-md shadow-indigo-500/20 tracking-wide">
-              Login
-            </Button>
+            {mounted && (
+              user ? (
+                <UserAvatar user={user} />
+              ) : (
+                <Link href="/auth/login">
+                  <Button variant="primary" className="px-5 py-2 text-sm font-bold rounded-full shadow-md shadow-indigo-500/20 tracking-wide">
+                    Login
+                  </Button>
+                </Link>
+              )
+            )}
             {renderThemeToggle()}
           </div>
         </div>
