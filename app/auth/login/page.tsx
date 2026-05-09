@@ -3,11 +3,11 @@
 import { createClient } from '@/lib/supabase/client'
 import { Smartphone, Sparkles } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 
 import { FloatingBackgroundIcons } from "@/app/components/organisms/FloatingBackgroundIcons"
 
-export default function LoginPage() {
+function LoginContent() {
   const [isLoading, setIsLoading] = useState(false)
   const searchParams = useSearchParams()
   const next = searchParams.get('next') ?? '/'
@@ -109,5 +109,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex-1 flex items-center justify-center p-4 bg-slate-50 dark:bg-[#060913]"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <LoginContent />
+    </Suspense>
   )
 }
