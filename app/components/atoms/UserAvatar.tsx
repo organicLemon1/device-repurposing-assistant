@@ -4,6 +4,8 @@ import React from 'react'
 import { LogOut, Settings, History } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { HistorySidebar } from '../organisms/HistorySidebar'
+import { SettingsSidebar } from '../organisms/SettingsSidebar'
 
 interface UserAvatarProps {
   user: {
@@ -17,6 +19,8 @@ interface UserAvatarProps {
 
 export function UserAvatar({ user }: UserAvatarProps) {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
   const router = useRouter()
   const supabase = createClient()
 
@@ -56,11 +60,28 @@ export function UserAvatar({ user }: UserAvatarProps) {
               <p className="text-xs font-medium text-slate-500 dark:text-slate-500 truncate">{user.email}</p>
             </div>
             <div className="p-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  // Use a tiny timeout to ensure the current event loop finishes
+                  setTimeout(() => setIsSidebarOpen(true), 10);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
+              >
                 <History className="w-4 h-4 text-slate-400" />
                 My Projects
               </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsOpen(false);
+                  setTimeout(() => setIsSettingsOpen(true), 10);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
+              >
                 <Settings className="w-4 h-4 text-slate-400" />
                 Settings
               </button>
@@ -77,6 +98,18 @@ export function UserAvatar({ user }: UserAvatarProps) {
           </div>
         </>
       )}
+
+      {/* Slide-out History Sidebar */}
+      <HistorySidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
+
+      {/* Slide-out Settings Sidebar */}
+      <SettingsSidebar 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </div>
   )
 }
