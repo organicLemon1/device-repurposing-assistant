@@ -106,9 +106,21 @@ function formatDiagnosisMessage(diagnosis: string, solutions: string[]): string 
   return `🔍 **I found the issue!**\n\n**Diagnosis:** ${diagnosis}\n\n**Here's how to fix it:**\n${solutionLines}`;
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Page Wrapper with Suspense ──────────────────────────────────────────────
 
 export default function WorkflowPage() {
+  return (
+    <React.Suspense fallback={
+      <div className="min-h-screen bg-slate-50 dark:bg-[#060913] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-slate-200 dark:border-white/10 border-t-indigo-500 rounded-full animate-spin" />
+      </div>
+    }>
+      <WorkflowContent />
+    </React.Suspense>
+  );
+}
+
+function WorkflowContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
