@@ -39,6 +39,18 @@ export default function IdeasPage() {
     setDeviceDetails(data);
 
     const fetchIdeas = async () => {
+      // Check cache first
+      const cacheKey = `deviceIdeas_${data.device_id}`;
+      const cachedIdeas = sessionStorage.getItem(cacheKey);
+      if (cachedIdeas) {
+        setProjects(JSON.parse(cachedIdeas));
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+      
       try {
         const response = await fetch('/api/generate-ideas', {
           method: 'POST',
@@ -47,6 +59,7 @@ export default function IdeasPage() {
         });
         if (!response.ok) throw new Error("Failed to generate ideas");
         const result = await response.json();
+        sessionStorage.setItem(cacheKey, JSON.stringify(result.projects));
         setProjects(result.projects);
       } catch (err: any) {
         setError(err.message || 'Error generating ideas');
@@ -59,6 +72,9 @@ export default function IdeasPage() {
       hasFetched.current = true;
       fetchIdeas();
     }
+    
+    // Store fetch function in ref to allow retrying without recreating the effect
+    (window as any).retryFetchIdeas = fetchIdeas;
   }, [router]);
 
   if (!deviceDetails) return null;
@@ -119,7 +135,7 @@ export default function IdeasPage() {
           <div className="bg-rose-50/80 dark:bg-red-900/20 backdrop-blur-xl border border-rose-200 dark:border-red-500/50 rounded-2xl p-5 text-rose-600 dark:text-red-400 max-w-2xl mx-auto text-center shadow-xl">
             <p className="font-semibold text-lg">{error}</p>
             <div className="mt-6">
-              <Button variant="outline" onClick={() => window.location.reload()}>Retry Extraction</Button>
+              <Button variant="outline" onClick={() => (window as any).retryFetchIdeas?.()}>Retry Extraction</Button>
             </div>
           </div>
         ) : (

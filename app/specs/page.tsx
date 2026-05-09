@@ -34,7 +34,16 @@ export default function SpecsPage() {
     const data = JSON.parse(stored);
     setDeviceDetails(data);
     
-      const fetchSpecs = async () => {
+    const fetchSpecs = async () => {
+      // Check session storage cache first
+      const cacheKey = `deviceSpecs_${data.device_id}`;
+      const cachedSpecs = sessionStorage.getItem(cacheKey);
+      if (cachedSpecs) {
+        setSpecsData(JSON.parse(cachedSpecs));
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const response = await fetch('/api/device-specs', {
           method: 'POST',
@@ -48,6 +57,7 @@ export default function SpecsPage() {
         if (!response.ok) throw new Error("Failed to fetch specs");
         
         const result = await response.json();
+        sessionStorage.setItem(cacheKey, JSON.stringify(result));
         setSpecsData(result);
       } catch (err: any) {
         setError(err.message || 'Error loading specs');

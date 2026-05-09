@@ -138,6 +138,8 @@ function WorkflowContent() {
   // ── Chatbot-illusion state ──────────────────────────────────────────────────
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [actionButtons, setActionButtons] = useState<ActionButton[]>([]);
+  type ActionState = 'none' | 'proceed_to_step_1' | 'step_active' | 'completed' | 'issue_diagnosed';
+  const [actionState, setActionState] = useState<ActionState>('none');
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [inputValue, setInputValue] = useState('');
@@ -189,9 +191,13 @@ function WorkflowContent() {
   const handleApiError = useCallback((label: string, retry: () => void) => {
     pushAIBubble(`❌ Something went wrong while ${label}. Please try again.`);
     setActionButtons([{ label: '↩ Retry', onClick: retry, variant: 'outline' }]);
+    setActionState('none');
   }, [pushAIBubble]);
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── Action Buttons Rebuilder ────────────────────────────────────────────────
+  // Need to define it inside or pass deps, but since it calls nextStep and submitStep,
+  // we can define it later or use a separate useEffect.
+  // We'll use a useEffect to listen to `actionState` and `projectId`.
   // API 1: /run-project
   // ─────────────────────────────────────────────────────────────────────────────
   const runProject = useCallback(async (project: RawProject, devId: string, devName: string) => {
@@ -232,17 +238,7 @@ function WorkflowContent() {
       pushAIBubble(formatRunProjectMessage(data));
 
       // Show Proceed button
-      setActionButtons([
-        {
-          label: '🚀 Proceed to Step 1',
-          onClick: () => {
-            setActionButtons([]);
-            pushUserBubble("Let's get started! 🚀");
-            nextStep(data.project_id);
-          },
-          variant: 'primary',
-        },
-      ]);
+      setActionState('proceed_to_step_1');
     } catch {
       setIsLoadingVisuals(false);
       handleApiError('starting your project', () => runProject(project, devId, devName));
@@ -259,6 +255,7 @@ function WorkflowContent() {
   const nextStep = useCallback(async (pid: string) => {
     setIsLoading(true);
     setLoadingMessage('AI is preparing your next step...');
+    setActionState('none');
     setActionButtons([]);
 
     try {
@@ -279,43 +276,13 @@ function WorkflowContent() {
 
       if (data.status === 'complete') {
         pushAIBubble(`🎉 **Project Complete!**\n\nYou've successfully finished all steps! Your device has been transformed. Amazing work! 👏\n\nWant to try another project? Head back to the Ideas page.`);
-        setActionButtons([
-          { label: '← Back to Ideas', onClick: () => router.push('/ideas'), variant: 'outline' },
-          { label: '🏠 Start Over', onClick: () => router.push('/'), variant: 'outline' },
-        ]);
+        setActionState('completed');
         return;
       }
 
       pushAIBubble(formatNextStepMessage(data));
 
-      const isLastStep = data.step_number === data.total_steps;
-
-      setActionButtons([
-        {
-          label: '✓ Done',
-          onClick: () => {
-            setActionButtons([]);
-            if (isLastStep) {
-              pushUserBubble("I've finished the last step! 🎉");
-            } else {
-              pushUserBubble('Done! Moving to the next step. ✅');
-            }
-            submitStep(pid, 'done');
-          },
-          variant: 'emerald',
-        },
-        {
-          label: '⚠️ I have an issue',
-          onClick: () => {
-            setActionButtons([]);
-            pushUserBubble("I'm having an issue with this step.");
-            setIsInputDisabled(false);
-            setAwaitingIssueInput(true);
-            pushAIBubble('No worries! Please describe your issue in the input below and I\'ll help you fix it. 🔧');
-          },
-          variant: 'outline',
-        },
-      ]);
+      setActionState('step_active');
     } catch {
       handleApiError('loading the next step', () => nextStep(pid));
     } finally {
@@ -331,6 +298,7 @@ function WorkflowContent() {
   const submitStep = useCallback(async (pid: string, action: 'done' | 'issue', issueDetail?: string) => {
     setIsLoading(true);
     setLoadingMessage(action === 'done' ? 'Saving your progress...' : 'AI is diagnosing your issue...');
+    setActionState('none');
     setActionButtons([]);
 
     try {
@@ -348,9 +316,7 @@ function WorkflowContent() {
 
       if (data.status === 'complete') {
         pushAIBubble(`🎉 **Project Complete!**\n\nYou've successfully finished all steps! Amazing work! 👏`);
-        setActionButtons([
-          { label: '← Back to Ideas', onClick: () => router.push('/ideas'), variant: 'outline' },
-        ]);
+        setActionState('completed');
         return;
       }
 
@@ -366,17 +332,7 @@ function WorkflowContent() {
         pushAIBubble(formatDiagnosisMessage(diagnosis, solutions));
         setIsInputDisabled(true);
         setAwaitingIssueInput(false);
-        setActionButtons([
-          {
-            label: '↩ Try again',
-            onClick: () => {
-              setActionButtons([]);
-              pushUserBubble('Got it, let me try again. 💪');
-              nextStep(pid);
-            },
-            variant: 'primary',
-          },
-        ]);
+        setActionState('issue_diagnosed');
       }
     } catch {
       handleApiError('submitting your response', () => submitStep(pid, action, issueDetail));
@@ -387,7 +343,6 @@ function WorkflowContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pushAIBubble, pushUserBubble, nextStep, handleApiError, router]);
 
-  // ── Handle issue text submission from input bar ─────────────────────────────
   const handleSend = useCallback(() => {
     if (!awaitingIssueInput || !inputValue.trim() || isLoading) return;
     const text = inputValue.trim();
@@ -397,6 +352,80 @@ function WorkflowContent() {
     setAwaitingIssueInput(false);
     submitStep(projectId, 'issue', text);
   }, [awaitingIssueInput, inputValue, isLoading, projectId, pushUserBubble, submitStep]);
+
+  // ── Effect: Rebuild action buttons when actionState changes ─────────────────
+  useEffect(() => {
+    switch (actionState) {
+      case 'proceed_to_step_1':
+        setActionButtons([{
+          label: '🚀 Proceed to Step 1',
+          onClick: () => { setActionState('none'); pushUserBubble("Let's get started! 🚀"); nextStep(projectId); },
+          variant: 'primary'
+        }]);
+        break;
+      case 'step_active':
+        const isLastStep = currentStepNumber > 0 && currentStepNumber === totalSteps;
+        setActionButtons([
+          {
+            label: '✓ Done',
+            onClick: () => {
+              setActionState('none');
+              pushUserBubble(isLastStep ? "I've finished the last step! 🎉" : 'Done! Moving to the next step. ✅');
+              submitStep(projectId, 'done');
+            },
+            variant: 'emerald',
+          },
+          {
+            label: '⚠️ I have an issue',
+            onClick: () => {
+              setActionState('none');
+              pushUserBubble("I'm having an issue with this step.");
+              setIsInputDisabled(false);
+              setAwaitingIssueInput(true);
+              pushAIBubble('No worries! Please describe your issue in the input below and I\'ll help you fix it. 🔧');
+            },
+            variant: 'outline',
+          },
+        ]);
+        break;
+      case 'completed':
+        setActionButtons([
+          { label: '← Back to Ideas', onClick: () => router.push('/ideas'), variant: 'outline' },
+          { label: '🏠 Start Over', onClick: () => router.push('/'), variant: 'outline' },
+        ]);
+        break;
+      case 'issue_diagnosed':
+        setActionButtons([{
+          label: '↩ Try again',
+          onClick: () => { setActionState('none'); pushUserBubble('Got it, let me try again. 💪'); nextStep(projectId); },
+          variant: 'primary'
+        }]);
+        break;
+      case 'none':
+      default:
+        setActionButtons([]);
+        break;
+    }
+  }, [actionState, projectId, currentStepNumber, totalSteps, router, nextStep, submitStep, pushUserBubble, pushAIBubble]);
+
+  // ── Session State Persistence Effect ───────────────────────────────────────
+  useEffect(() => {
+    const key = searchParams.get('project');
+    if (!key || !projectId) return;
+
+    const stateToSave = {
+      projectId,
+      totalSteps,
+      currentStepNumber,
+      mermaidChart,
+      videoUrl,
+      messages,
+      actionState,
+      isInputDisabled,
+      awaitingIssueInput
+    };
+    sessionStorage.setItem(`workflowState_${key}`, JSON.stringify(stateToSave));
+  }, [searchParams, projectId, totalSteps, currentStepNumber, mermaidChart, videoUrl, messages, actionState, isInputDisabled, awaitingIssueInput]);
 
   // ── Bootstrap: read sessionStorage and kick off /run-project ───────────────
   useEffect(() => {
@@ -420,7 +449,25 @@ function WorkflowContent() {
 
     if (!hasFetched.current) {
       hasFetched.current = true;
-      runProject(project, devId, devName);
+      
+      const cachedStateStr = sessionStorage.getItem(`workflowState_${key}`);
+      if (cachedStateStr) {
+        const cachedState = JSON.parse(cachedStateStr);
+        setProjectId(cachedState.projectId);
+        setTotalSteps(cachedState.totalSteps);
+        setCurrentStepNumber(cachedState.currentStepNumber);
+        setMermaidChart(cachedState.mermaidChart);
+        setVideoUrl(cachedState.videoUrl);
+        // Dates need parsing back from string to Date objects
+        const parsedMessages = cachedState.messages.map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) }));
+        setMessages(parsedMessages);
+        setActionState(cachedState.actionState);
+        setIsInputDisabled(cachedState.isInputDisabled);
+        setAwaitingIssueInput(cachedState.awaitingIssueInput);
+        setIsLoadingVisuals(false);
+      } else {
+        runProject(project, devId, devName);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
