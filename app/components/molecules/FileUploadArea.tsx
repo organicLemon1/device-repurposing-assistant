@@ -63,12 +63,12 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({ onFileChange, er
   return (
     <div className="mb-3">
       <div 
-        className="flex items-center justify-between w-full border border-slate-200 dark:border-slate-700/60 rounded-xl p-4 bg-white dark:bg-[#1b1c23] shadow-sm transition-all hover:bg-slate-50 dark:hover:bg-[#1f2029]"
+        className="flex flex-col sm:flex-row items-center sm:justify-between w-full border border-slate-200 dark:border-white/10 rounded-2xl p-5 bg-slate-50/50 dark:bg-slate-900/40 backdrop-blur-md shadow-inner transition-all hover:bg-slate-100/50 dark:hover:bg-slate-800/40 cursor-pointer gap-4 sm:gap-0"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          <div className="p-3 bg-indigo-50 dark:bg-slate-800 rounded-full text-indigo-600 dark:text-slate-300 flex-shrink-0">
+        <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
+          <div className="p-4 bg-indigo-100 dark:bg-indigo-500/20 rounded-2xl text-indigo-600 dark:text-indigo-400 flex-shrink-0 shadow-inner">
             <CloudUploadIcon />
           </div>
           <div className="flex flex-col text-left flex-1 min-w-0 mr-4">
@@ -78,7 +78,7 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({ onFileChange, er
             <p className="text-xs font-medium text-slate-500 dark:text-slate-500 mt-1">Limit 2MB per file • JPG, PNG, JPEG</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto justify-end">
           {file && (
             <Button type="button" variant="outline" className="px-3 whitespace-nowrap" onClick={clearFile}>
               Clear

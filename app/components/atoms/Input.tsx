@@ -2,7 +2,7 @@ import React from 'react';
 export const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ className = '', ...props }, ref) => (
   <input
     ref={ref}
-    className={`flex w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#12141a] px-3 py-2 text-sm text-slate-900 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 ${className}`}
+    className={`flex w-full rounded-xl border border-slate-300 dark:border-white/10 bg-slate-50/50 dark:bg-slate-900/40 backdrop-blur-md px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 shadow-inner focus:outline-none focus:ring-2 focus:ring-indigo-500/50 dark:focus:ring-indigo-400/50 transition-all ${className}`}
     {...props}
   />
 ));

@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Wrench } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../atoms/Button";
 
@@ -41,9 +41,6 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0 flex items-center space-x-3 cursor-pointer">
             <Link href="/" className="flex items-center space-x-3 group">
-               <div className="p-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-lg group-hover:scale-105 transition-transform duration-200">
-                 <Wrench className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-               </div>
                <span className="font-extrabold text-xl tracking-tight text-slate-800 dark:text-white">
                  Device Assistant
                </span>
