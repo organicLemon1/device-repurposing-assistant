@@ -36,7 +36,7 @@ export default function SpecsPage() {
     
       const fetchSpecs = async () => {
       try {
-        const response = await fetch('https://device-rag-backend.onrender.com/api/device-specs', {
+        const response = await fetch('/api/device-specs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

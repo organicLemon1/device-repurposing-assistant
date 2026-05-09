@@ -42,7 +42,7 @@ export default function ConfirmPage() {
   const handleConfirm = async () => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('https://device-rag-backend.onrender.com/api/confirm-device', {
+      const response = await fetch('/api/confirm-device', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

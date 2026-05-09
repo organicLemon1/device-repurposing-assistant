@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { Sun, Moon, ArrowLeft } from "lucide-react";
+import { Sun, Lamp, Lightbulb, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../atoms/Button";
@@ -20,20 +20,20 @@ export function Navbar() {
 
   const renderThemeToggle = () => {
     if (!mounted) return <div className="w-10 h-10"></div>;
-    
+
     const currentTheme = theme === 'system' ? systemTheme : theme;
-    
+
     return (
-      <Button 
-        variant="outline" 
-        className="p-2 !rounded-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700" 
+      <Button
+        variant="outline"
+        className="p-2 !rounded-full bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
         onClick={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
         aria-label="Toggle Dark Mode"
       >
         {currentTheme === 'dark' ? (
-          <Sun className="w-5 h-5 text-amber-400" />
+          <Lightbulb className="w-5 h-5 text-amber-400" />
         ) : (
-          <Moon className="w-5 h-5 text-indigo-600" />
+          <Lamp className="w-5 h-5 text-indigo-600" />
         )}
       </Button>
     );
@@ -59,7 +59,7 @@ export function Navbar() {
               </span>
             </Link>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <Button variant="primary" className="px-5 py-2 text-sm font-bold rounded-full shadow-md shadow-indigo-500/20 tracking-wide">
               Login

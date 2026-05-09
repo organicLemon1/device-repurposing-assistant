@@ -35,7 +35,7 @@ export default function Home() {
       formData.append("condition", condition);
       formData.append("additionalInfo", additionalInfo);
 
-      const response = await fetch('https://device-rag-backend.onrender.com/api/detect-device', {
+      const response = await fetch('/api/detect-device', {
         method: 'POST',
         body: formData,
       });

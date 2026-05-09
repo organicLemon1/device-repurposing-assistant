@@ -1,40 +1,25 @@
 import { NextResponse } from 'next/server';
 
+const BACKEND = 'https://device-rag-backend.onrender.com/api';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
-    // Simulate a complex search/extraction delay
-    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const { device_id, device_name } = body;
+    const response = await fetch(`${BACKEND}/device-specs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
 
-    if (!device_id) {
-       return NextResponse.json({ error: 'device_id is required' }, { status: 400 });
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status });
     }
 
-    return NextResponse.json({
-      device_id,
-      device_name,
-      components: [
-        "Lithium-ion Battery (1821 mAh)",
-        "Rear Camera Module (12MP)",
-        "Front Camera (7MP)",
-        "Retina IPS LCD Display (4.7-inch)",
-        "Taptic Engine (Vibration Motor)",
-        "A11 Bionic Chipset Logic Board",
-        "Speaker Module"
-      ],
-      capabilities: [
-        "Touchscreen Interface",
-        "Bluetooth 5.0",
-        "Wi-Fi",
-        "NFC",
-        "Camera & Video Recording"
-      ],
-      sources: ["ifixit.com", "gsmarena.com"]
-    });
+    return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to extract specs' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to reach backend' }, { status: 500 });
   }
 }

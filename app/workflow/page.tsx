@@ -14,7 +14,7 @@ import { SectionHeader } from '../components/molecules/SectionHeader';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const API_BASE = 'https://device-rag-backend.onrender.com/api';
+const API_BASE = '/api';
 const DEFAULT_VIDEO_URL = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
 
 // Rotating messages shown while /run-project is loading (it takes 20-40s)

@@ -1,26 +1,25 @@
 import { NextResponse } from 'next/server';
 
+const BACKEND = 'https://device-rag-backend.onrender.com/api';
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
-    // Simulate basic network processing
-    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const { device_id, model, brand } = body;
+    const response = await fetch(`${BACKEND}/confirm-device`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
 
-    if (!device_id) {
-       return NextResponse.json({ error: 'device_id is required' }, { status: 400 });
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json(data, { status: response.status });
     }
 
-    // Conceptually forms the unified device name
-    const device_name = `${brand || ''} ${model || ''}`.trim() || 'Unknown Device';
-
-    return NextResponse.json({
-      device_id,
-      device_name
-    });
+    return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to process' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to reach backend' }, { status: 500 });
   }
 }

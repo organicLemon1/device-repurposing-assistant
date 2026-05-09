@@ -4,11 +4,12 @@ const BACKEND = 'https://device-rag-backend.onrender.com/api';
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.formData();
+    const body = await request.json();
 
-    const response = await fetch(`${BACKEND}/detect-device`, {
+    const response = await fetch(`${BACKEND}/next-step`, {
       method: 'POST',
-      body: formData,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
 
     const data = await response.json();

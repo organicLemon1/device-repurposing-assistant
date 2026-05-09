@@ -40,7 +40,7 @@ export default function IdeasPage() {
 
     const fetchIdeas = async () => {
       try {
-        const response = await fetch('https://device-rag-backend.onrender.com/api/generate-ideas', {
+        const response = await fetch('/api/generate-ideas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ device_id: data.device_id })
