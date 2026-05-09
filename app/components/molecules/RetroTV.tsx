@@ -26,37 +26,7 @@ export const RetroTV: React.FC<RetroTVProps> = ({ youtubeUrl, className = '' }) 
   const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
 
   return (
-    <div className={`flex flex-col items-center pt-8 ${className}`}>
-      {/* Antenna - Moved to top for better layout alignment */}
-      <div className="relative w-full flex justify-center h-0">
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '0',
-            left: 'calc(50% - 25px)',
-            width: '2px',
-            height: '40px',
-            background: 'linear-gradient(to top, #555, #333)',
-            transformOrigin: 'bottom center',
-            transform: 'rotate(-20deg)',
-            borderRadius: '1px',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '0',
-            left: 'calc(50% + 23px)',
-            width: '2px',
-            height: '40px',
-            background: 'linear-gradient(to top, #555, #333)',
-            transformOrigin: 'bottom center',
-            transform: 'rotate(20deg)',
-            borderRadius: '1px',
-          }}
-        />
-      </div>
-
+    <div className={`flex flex-col items-center pt-2 ${className}`}>
       {/* TV Outer Shell */}
       <div className="relative w-full"
         style={{
